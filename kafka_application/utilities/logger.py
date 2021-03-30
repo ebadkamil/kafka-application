@@ -8,7 +8,6 @@ import logging
 
 
 def get_logger(name, level: int = logging.DEBUG):
-    """Create the logger object for the whole API."""
     logger = logging.getLogger(name)
     console_handler = logging.StreamHandler()
     formatter = logging.Formatter(

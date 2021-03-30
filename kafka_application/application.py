@@ -56,7 +56,7 @@ def start_application():
     load_reporter = None
     if args.grafana_carbon_address:
         load_reporter = LoadReporter(
-            args.grafana_carbon_address, logger, update_interval_s=1
+            args.grafana_carbon_address, logger,
         )
 
     try:
