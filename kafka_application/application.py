@@ -6,21 +6,51 @@ All rights reserved.
 
 import argparse
 import logging
+import os.path as osp
 import subprocess
+import sys
+import time
+
+import psutil
 
 from kafka_application.kafka_helpers.machine_load_reporter import LoadReporter
 from kafka_application.utilities.logger import get_logger
 
 
-def start_kafka_services():
-    pass
+ROOT_PATH = osp.dirname(__file__)
+
+
+def start_kafka_services(logger):
+
+    zookeeper_exec = osp.join(
+        osp.dirname(ROOT_PATH), 'pkg/kafka/kafka/bin/zookeeper-server-start.sh')
+    zookeeper_conf = osp.join(
+        osp.dirname(ROOT_PATH), 'pkg/kafka/kafka/config/zookeeper.properties')
+
+    process = psutil.Popen(
+        [zookeeper_exec, zookeeper_conf])
+    time.sleep(10)
+
+    server_exec = osp.join(
+        osp.dirname(ROOT_PATH), 'pkg/kafka/kafka/bin/kafka-server-start.sh')
+    server_conf = osp.join(
+        osp.dirname(ROOT_PATH), 'pkg/kafka/kafka/config/server.properties')
+    process = subprocess.Popen([server_exec, server_conf])
+    time.sleep(5)
+
+    #TODO Add producer, consumer to check if services ran properly
+    if process.poll() is None:
+        logger.info("Kafka Server is running...")
+    else:
+        logger.error("Kafka service was terminated ...")
+        sys.exit(1)
 
 
 class Application:
     def __init__(self):
-        start_kafka_services()
+        pass
 
-    def start_app(self):
+    def start(self):
         pass
 
 
@@ -53,6 +83,9 @@ def start_application():
 
     logger = get_logger("Kafka-application", level=_log_levels[args.log_level])
 
+    #TODO Check if kafka server is already running.
+    start_kafka_services(logger)
+
     load_reporter = None
     if args.grafana_carbon_address:
         load_reporter = LoadReporter(
@@ -61,17 +94,14 @@ def start_application():
 
     try:
         app = Application()
-        app.start_app()
+        app.start()
         if load_reporter is not None:
             load_reporter_t = load_reporter.start()
 
     except KeyboardInterrupt:
+        #TODO Handle closing
         load_reporter.stop()
 
     finally:
         if load_reporter:
             load_reporter_t.join()
-
-
-if __name__ == "__main__":
-    start_application()
