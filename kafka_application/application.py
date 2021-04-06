@@ -13,7 +13,7 @@ import time
 
 import psutil
 
-from kafka_application.kafka_helpers.machine_load_reporter import LoadReporter
+from kafka_application.helpers.machine_load_reporter import LoadReporter
 from kafka_application.utilities.logger import get_logger
 
 
@@ -35,7 +35,7 @@ def start_kafka_services(logger):
         osp.dirname(ROOT_PATH), 'pkg/kafka/kafka/bin/kafka-server-start.sh')
     server_conf = osp.join(
         osp.dirname(ROOT_PATH), 'pkg/kafka/kafka/config/server.properties')
-    process = subprocess.Popen([server_exec, server_conf])
+    process = psutil.Popen([server_exec, server_conf])
     time.sleep(5)
 
     #TODO Add producer, consumer to check if services ran properly
@@ -84,7 +84,7 @@ def start_application():
     logger = get_logger("Kafka-application", level=_log_levels[args.log_level])
 
     #TODO Check if kafka server is already running.
-    start_kafka_services(logger)
+    # start_kafka_services(logger)
 
     load_reporter = None
     if args.grafana_carbon_address:
