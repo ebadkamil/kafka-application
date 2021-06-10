@@ -7,7 +7,6 @@ All rights reserved.
 import argparse
 import logging
 import os.path as osp
-import subprocess
 import sys
 import time
 
@@ -97,11 +96,8 @@ def start_application():
         app.start()
         if load_reporter is not None:
             load_reporter_t = load_reporter.start()
-
-    except KeyboardInterrupt:
-        #TODO Handle closing
-        load_reporter.stop()
-
+    except Exception as e:
+        logger.error(f"{e}")
     finally:
         if load_reporter:
             load_reporter_t.join()
