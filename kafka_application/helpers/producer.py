@@ -72,6 +72,8 @@ def run_producer():
             str(msg),
             time.time()) # async. Message gets pushed to buffer and returns.
 
+    kafka_producer.close()
+
 
 if __name__ == '__main__':
     run_producer()
